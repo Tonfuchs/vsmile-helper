@@ -2,6 +2,9 @@
   "mame_path": "mame/mame.exe",
   "bios_path": "mame/roms",
   "games_path": "games",
+  "vflash_path": "",
+  "cart_emulator": "mame",
+  "vdream_path": "",
   "console_mode": "vsmile",
   "language": "en"
 }

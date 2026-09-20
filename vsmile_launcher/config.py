@@ -18,6 +18,9 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "mame_path": "",
     "bios_path": "",
     "games_path": "",
+    "vflash_path": "",  # optional: externer V.Flash-Emulator fuer CD-Spiele
+    "cart_emulator": "mame",  # "mame" oder "vdream" fuer Cartridges
+    "vdream_path": "",  # optional: vdream_core.exe; leer = installierte Fassung suchen
     "console_mode": "vsmile",  # "vsmile" oder "vsmotion"
     "language": "",  # "de" oder "en"; leer = Systemsprache
 }

@@ -7,20 +7,25 @@ from typing import Callable
 import customtkinter as ctk
 
 from . import config as config_module
-from . import i18n, mame, updater
+from . import i18n, mame, updater, vdream, vflash
 from .i18n import t
-from .scanner import Game, scan_games
+from .scanner import SYSTEM_VFLASH, Game, scan_games
 from .settings_dialog import SettingsDialog
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 CONSOLE_MODES = ("vsmile", "vsmotion")
+EMULATORS = ("mame", "vdream")  # fuer Cartridges; CD-Images gehen immer an vflash
 UPDATE_POLL_MS = 300
 
 
 def console_label(mode: str) -> str:
     return t(f"console_{mode}")
+
+
+def emulator_label(emulator: str) -> str:
+    return t(f"emulator_{emulator}")
 
 
 class LauncherApp(ctk.CTk):
@@ -29,7 +34,7 @@ class LauncherApp(ctk.CTk):
 
         self.title("VSmile-MAME-Launcher")
         self.geometry("680x540")
-        self.minsize(520, 420)
+        self.minsize(640, 420)
 
         self.config_data = config_module.load_config()
         self.config_data["language"] = i18n.set_language(self.config_data.get("language"))
@@ -72,6 +77,21 @@ class LauncherApp(ctk.CTk):
             command=self._on_mode_change,
         )
         mode_menu.pack(side="left", padx=5)
+
+        ctk.CTkLabel(header, text=t("emulator_label")).pack(side="left", padx=(10, 5))
+
+        emulator = self.config_data.get("cart_emulator", "mame")
+        if emulator not in EMULATORS:
+            emulator = "mame"
+        self.emulator_var = ctk.StringVar(value=emulator_label(emulator))
+        emulator_menu = ctk.CTkOptionMenu(
+            header,
+            values=[emulator_label(e) for e in EMULATORS],
+            variable=self.emulator_var,
+            command=self._on_emulator_change,
+            width=110,
+        )
+        emulator_menu.pack(side="left", padx=5)
 
         settings_btn = ctk.CTkButton(header, text=t("btn_settings"), command=self._open_settings)
         settings_btn.pack(side="right", padx=5)
@@ -159,6 +179,13 @@ class LauncherApp(ctk.CTk):
                 break
         self._save_config_safely()
 
+    def _on_emulator_change(self, label: str) -> None:
+        for emulator in EMULATORS:
+            if emulator_label(emulator) == label:
+                self.config_data["cart_emulator"] = emulator
+                break
+        self._save_config_safely()
+
     def _on_language_change(self, name: str) -> None:
         code = next((c for c, n in i18n.LANGUAGES.items() if n == name), i18n.DEFAULT_LANGUAGE)
         self.config_data["language"] = i18n.set_language(code)
@@ -215,9 +242,12 @@ class LauncherApp(ctk.CTk):
 
             # Der Pfad relativ zum Spiele-Ordner unterscheidet gleichnamige
             # Dateien aus verschiedenen Unterordnern (z. B. .../DE/ und .../EN/).
+            text = game.label
+            if game.system == SYSTEM_VFLASH:
+                text = t("game_tag_vflash", name=game.label)
             label = ctk.CTkButton(
                 row,
-                text=game.label,
+                text=text,
                 anchor="w",
                 fg_color="gray25",
                 hover_color="gray35",
@@ -242,20 +272,34 @@ class LauncherApp(ctk.CTk):
         if not game:
             return
 
-        mode = self.config_data.get("console_mode", "vsmile")
+        # CD-Images gehen an den V.Flash-Emulator, Cartridges an MAME oder V.Dream.
+        is_cd = game.system == SYSTEM_VFLASH
+        mode = "vflash" if is_cd else self.config_data.get("console_mode", "vsmile")
+        use_vdream = not is_cd and self.config_data.get("cart_emulator") == "vdream"
         try:
-            mame.launch_game(
-                mame_path=self.config_data.get("mame_path", ""),
-                game_path=str(game.path),
-                console_mode=mode,
-                bios_path=self.config_data.get("bios_path", ""),
-            )
+            if is_cd:
+                vflash.launch_game(
+                    vflash_path=self.config_data.get("vflash_path", ""),
+                    game_path=str(game.path),
+                )
+            elif use_vdream:
+                vdream.launch_game(
+                    vdream_path=self.config_data.get("vdream_path", ""),
+                    game_path=str(game.path),
+                    console_mode=mode,
+                )
+            else:
+                mame.launch_game(
+                    mame_path=self.config_data.get("mame_path", ""),
+                    game_path=str(game.path),
+                    console_mode=mode,
+                    bios_path=self.config_data.get("bios_path", ""),
+                )
         except mame.LaunchError as exc:
             self._set_status(lambda err=exc: t("status_error", error=err))
         else:
-            self._set_status(
-                lambda: t("status_started", name=game.label, console=console_label(mode))
-            )
+            console = console_label(mode) + (", V.Dream" if use_vdream else "")
+            self._set_status(lambda: t("status_started", name=game.label, console=console))
 
     def _set_status(self, text: Callable[[], str]) -> None:
         self._status_text = text

@@ -25,8 +25,13 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         # Hauptfenster
         "language_label": "Sprache:",
         "console_label": "Konsole:",
+        "emulator_label": "Emulator:",
+        "emulator_mame": "MAME",
+        "emulator_vdream": "V.Dream",
         "console_vsmile": "V.Smile (Standard)",
         "console_vsmotion": "V.Smile Motion",
+        "console_vflash": "V.Flash (experimentell)",
+        "game_tag_vflash": "[V.Flash] {name}",
         "btn_settings": "Einstellungen",
         "btn_refresh": "Aktualisieren",
         "games_list_title": "Spiele",
@@ -50,30 +55,63 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings_mame": "mame.exe:",
         "settings_bios": "BIOS-Ordner:",
         "settings_games": "Spiele-Ordner:",
+        "settings_vflash": "vflash.exe:",
+        "settings_vdream": "vdream_core.exe:",
         "settings_browse": "Durchsuchen",
         "settings_save": "Speichern",
         "settings_cancel": "Abbrechen",
         "settings_hint": (
             "Pfade innerhalb des Projektordners werden relativ gespeichert, "
-            "damit sich der Ordner verschieben lässt."
+            "damit sich der Ordner verschieben lässt. vflash.exe ist optional und "
+            "nur für V.Flash-CDs nötig; MAME kann sie nicht starten. "
+            "vdream_core.exe ist optional; leer heißt: die installierte V.Dream-Fassung suchen."
         ),
         "dialog_select_mame": "mame.exe auswählen",
         "dialog_select_bios": "BIOS-Ordner auswählen",
         "dialog_select_games": "Spiele-Ordner auswählen",
+        "dialog_select_vflash": "vflash.exe auswählen",
+        "dialog_select_vdream": "vdream_core.exe auswählen",
         "filetype_mame": "MAME-Programm",
+        "filetype_vflash": "V.Flash-Emulator",
+        "filetype_vdream": "V.Dream-Kern",
         "filetype_all": "Alle Dateien",
         # Fehler beim Starten von MAME
         "err_mame_not_set": "Kein Pfad zu mame.exe eingestellt. Bitte in den Einstellungen festlegen.",
         "err_mame_not_found": "mame.exe wurde nicht gefunden: {path}",
         "err_game_not_found": "Spieldatei wurde nicht gefunden: {path}",
         "err_mame_start_failed": "MAME konnte nicht gestartet werden: {error}",
+        # Fehler beim Starten des V.Flash-Emulators
+        "err_vflash_not_set": (
+            "Für V.Flash-CDs fehlt der Pfad zu vflash.exe (V.Flash-Emulator). "
+            "Bitte in den Einstellungen festlegen."
+        ),
+        "err_vflash_not_found": "vflash.exe wurde nicht gefunden: {path}",
+        "err_vflash_start_failed": "Der V.Flash-Emulator konnte nicht gestartet werden: {error}",
+        # Fehler beim Starten von V.Dream
+        "err_vdream_not_set": (
+            "V.Dream wurde nicht gefunden. Bitte den Pfad zu vdream_core.exe in den "
+            "Einstellungen festlegen oder MAME als Emulator wählen."
+        ),
+        "err_vdream_not_found": "vdream_core.exe wurde nicht gefunden: {path}",
+        "err_vdream_no_motion": (
+            "V.Dream kann V.Smile Motion nicht starten. Bitte MAME als Emulator wählen."
+        ),
+        "err_vdream_bin_only": (
+            "V.Dream startet nur .bin-Dateien, nicht: {name}. Bitte MAME als Emulator wählen."
+        ),
+        "err_vdream_start_failed": "V.Dream konnte nicht gestartet werden: {error}",
     },
     "en": {
         # Main window
         "language_label": "Language:",
         "console_label": "Console:",
+        "emulator_label": "Emulator:",
+        "emulator_mame": "MAME",
+        "emulator_vdream": "V.Dream",
         "console_vsmile": "V.Smile (Standard)",
         "console_vsmotion": "V.Smile Motion",
+        "console_vflash": "V.Flash (experimental)",
+        "game_tag_vflash": "[V.Flash] {name}",
         "btn_settings": "Settings",
         "btn_refresh": "Refresh",
         "games_list_title": "Games",
@@ -97,23 +135,51 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings_mame": "mame.exe:",
         "settings_bios": "BIOS folder:",
         "settings_games": "Games folder:",
+        "settings_vflash": "vflash.exe:",
+        "settings_vdream": "vdream_core.exe:",
         "settings_browse": "Browse",
         "settings_save": "Save",
         "settings_cancel": "Cancel",
         "settings_hint": (
             "Paths inside the project folder are stored relative to it, "
-            "so the folder can be moved freely."
+            "so the folder can be moved freely. vflash.exe is optional and only "
+            "needed for V.Flash CDs; MAME cannot run them. "
+            "vdream_core.exe is optional; empty means: look for the installed V.Dream."
         ),
         "dialog_select_mame": "Select mame.exe",
         "dialog_select_bios": "Select BIOS folder",
         "dialog_select_games": "Select games folder",
+        "dialog_select_vflash": "Select vflash.exe",
+        "dialog_select_vdream": "Select vdream_core.exe",
         "filetype_mame": "MAME executable",
+        "filetype_vflash": "V.Flash emulator",
+        "filetype_vdream": "V.Dream core",
         "filetype_all": "All files",
         # Errors when launching MAME
         "err_mame_not_set": "No path to mame.exe configured. Please set it in the settings.",
         "err_mame_not_found": "mame.exe was not found: {path}",
         "err_game_not_found": "Game file was not found: {path}",
         "err_mame_start_failed": "MAME could not be started: {error}",
+        # Errors when launching the V.Flash emulator
+        "err_vflash_not_set": (
+            "No path to vflash.exe (V.Flash emulator) configured for V.Flash CDs. "
+            "Please set it in the settings."
+        ),
+        "err_vflash_not_found": "vflash.exe was not found: {path}",
+        "err_vflash_start_failed": "The V.Flash emulator could not be started: {error}",
+        # Errors when launching V.Dream
+        "err_vdream_not_set": (
+            "V.Dream was not found. Please set the path to vdream_core.exe in the "
+            "settings or choose MAME as the emulator."
+        ),
+        "err_vdream_not_found": "vdream_core.exe was not found: {path}",
+        "err_vdream_no_motion": (
+            "V.Dream cannot run V.Smile Motion. Please choose MAME as the emulator."
+        ),
+        "err_vdream_bin_only": (
+            "V.Dream only runs .bin files, not: {name}. Please choose MAME as the emulator."
+        ),
+        "err_vdream_start_failed": "V.Dream could not be started: {error}",
     },
 }
 

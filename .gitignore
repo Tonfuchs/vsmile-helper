@@ -26,6 +26,7 @@ config.json
 /mame/
 /games/
 /roms/
+/vflash/
 
 # OS
 .DS_Store

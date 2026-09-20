@@ -1,4 +1,4 @@
-"""Einstellungsdialog fuer Pfade zu mame.exe, BIOS- und Spiele-Ordner."""
+"""Einstellungsdialog fuer die Pfade zu MAME, BIOS, Spielen, V.Flash-Emulator und V.Dream."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ class SettingsDialog(ctk.CTkToplevel):
     def __init__(self, master, config: dict, on_save: Callable[[dict], None]):
         super().__init__(master)
         self.title(t("settings_title"))
-        self.geometry("580x300")
+        self.geometry("580x430")
         self.resizable(False, False)
         self.transient(master)
         self.grab_set()
@@ -27,18 +27,22 @@ class SettingsDialog(ctk.CTkToplevel):
         self.mame_var = ctk.StringVar(value=config.get("mame_path", ""))
         self.bios_var = ctk.StringVar(value=config.get("bios_path", ""))
         self.games_var = ctk.StringVar(value=config.get("games_path", ""))
+        self.vflash_var = ctk.StringVar(value=config.get("vflash_path", ""))
+        self.vdream_var = ctk.StringVar(value=config.get("vdream_path", ""))
 
         self._build_row(0, t("settings_mame"), self.mame_var, self._browse_mame)
         self._build_row(1, t("settings_bios"), self.bios_var, self._browse_bios)
         self._build_row(2, t("settings_games"), self.games_var, self._browse_games)
+        self._build_row(3, t("settings_vflash"), self.vflash_var, self._browse_vflash)
+        self._build_row(4, t("settings_vdream"), self.vdream_var, self._browse_vdream)
 
         ctk.CTkLabel(
             self, text=t("settings_hint"), text_color="gray60",
             wraplength=520, justify="left", anchor="w",
-        ).grid(row=3, column=0, columnspan=3, padx=20, pady=(0, 5), sticky="w")
+        ).grid(row=5, column=0, columnspan=3, padx=20, pady=(0, 5), sticky="w")
 
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(row=4, column=0, columnspan=3, pady=15)
+        button_frame.grid(row=6, column=0, columnspan=3, pady=15)
 
         save_btn = ctk.CTkButton(button_frame, text=t("settings_save"), command=self._save)
         save_btn.pack(side="left", padx=10)
@@ -97,11 +101,33 @@ class SettingsDialog(ctk.CTkToplevel):
         if path:
             self.games_var.set(to_storable_path(path))
 
+    def _browse_vflash(self) -> None:
+        pattern = "vflash.exe" if sys.platform == "win32" else "vflash*"
+        path = filedialog.askopenfilename(
+            title=t("dialog_select_vflash"),
+            initialdir=self._start_dir(self.vflash_var.get()),
+            filetypes=[(t("filetype_vflash"), pattern), (t("filetype_all"), "*.*")],
+        )
+        if path:
+            self.vflash_var.set(to_storable_path(path))
+
+    def _browse_vdream(self) -> None:
+        pattern = "vdream_core.exe" if sys.platform == "win32" else "vdream_core*"
+        path = filedialog.askopenfilename(
+            title=t("dialog_select_vdream"),
+            initialdir=self._start_dir(self.vdream_var.get()),
+            filetypes=[(t("filetype_vdream"), pattern), (t("filetype_all"), "*.*")],
+        )
+        if path:
+            self.vdream_var.set(to_storable_path(path))
+
     def _save(self) -> None:
         # Auch von Hand eingetippte Pfade werden normalisiert: liegt etwas im
         # Projektordner, wird es relativ gespeichert.
         self.config_data["mame_path"] = to_storable_path(self.mame_var.get())
         self.config_data["bios_path"] = to_storable_path(self.bios_var.get())
         self.config_data["games_path"] = to_storable_path(self.games_var.get())
+        self.config_data["vflash_path"] = to_storable_path(self.vflash_var.get())
+        self.config_data["vdream_path"] = to_storable_path(self.vdream_var.get())
         self.on_save(self.config_data)
         self.destroy()
