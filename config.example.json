@@ -1,0 +1,7 @@
+{
+  "mame_path": "mame/mame.exe",
+  "bios_path": "mame/roms",
+  "games_path": "games",
+  "console_mode": "vsmile",
+  "language": "en"
+}

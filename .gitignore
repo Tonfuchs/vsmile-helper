@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtuelle Umgebungen
+venv/
+.venv/
+env/
+ENV/
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Projektspezifisch
+config.json
+
+# Portable Ablage im Projektordner: MAME, BIOS und Spiele gehoeren nicht ins Repo
+/mame/
+/games/
+/roms/
+
+# OS
+.DS_Store
+Thumbs.db
