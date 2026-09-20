@@ -1,0 +1,80 @@
+name: Release
+
+# Manuell starten: Actions -> Release -> Run workflow -> Versionsnummer eintragen.
+# Der Workflow setzt __version__ in main.py, testet, committet auf main, legt den
+# Tag "v<version>" an und veroeffentlicht ein GitHub-Release mit Quellcode-ZIP.
+# Genau dieses Release (neuester Tag) fragt der Update-Hinweis im Launcher ab.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Neue Versionsnummer ohne "v", z. B. 1.1.0 (muss groesser als die aktuelle sein)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+# Nie zwei Releases gleichzeitig, und ein laufendes nicht abbrechen.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    # Releases nur von main, sonst landet der Versions-Commit auf einem Nebenzweig.
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      # Eingabe nur ueber eine Umgebungsvariable weiterreichen, nie direkt in Skripte
+      # einsetzen (Schutz vor Code-Einschleusung).
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # alle Tags, fuer die Pruefung unten
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Tag darf noch nicht existieren
+        run: |
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "::error::Tag v$VERSION existiert bereits."
+            exit 1
+          fi
+
+      - name: Versionsnummer in main.py setzen
+        run: python .github/scripts/set_version.py "$VERSION"
+
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Commit, Tag und Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add main.py
+          git commit -m "Release v$VERSION"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          # Atomar: entweder kommen Commit und Tag an, oder keins von beiden.
+          git push --atomic origin HEAD:main "refs/tags/v$VERSION"
+
+      - name: Quellcode-ZIP bauen
+        run: |
+          git archive --format=zip --prefix="vsmile-helper-$VERSION/" \
+            -o "vsmile-helper-$VERSION.zip" "v$VERSION"
+
+      - name: GitHub-Release erstellen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v$VERSION" "vsmile-helper-$VERSION.zip" \
+            --title "v$VERSION" \
+            --generate-notes \
+            --verify-tag

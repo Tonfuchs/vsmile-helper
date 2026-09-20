@@ -101,11 +101,18 @@ Die Datei `config.json` wird automatisch im Projektordner angelegt und ist Teil 
 python -m unittest discover -s tests -v
 ```
 
+### Release veroeffentlichen
+
+Auf GitHub unter **Actions → Release → Run workflow** (Branch `main`) die neue Versionsnummer im Format `X.Y.Z` eintragen, z. B. `1.1.0`. Der Workflow prueft, dass sie groesser als die aktuelle ist, setzt `__version__` in `main.py`, fuehrt die Tests aus, committet auf `main`, legt den Tag `v1.1.0` an und veroeffentlicht ein Release mit Quellcode-ZIP. Ab dann zeigt der Update-Hinweis in aelteren Launcher-Versionen die neue Fassung an.
+
 ### Projektstruktur
 
 ```text
 vsmile-mame-launcher/
 ├── main.py                     # Einstiegspunkt
+├── .github/
+│   ├── workflows/release.yml   # Release-Workflow (manuell, mit Versionsnummer)
+│   └── scripts/set_version.py  # setzt __version__ in main.py
 ├── vsmile_launcher/
 │   ├── app.py                  # Hauptfenster / GUI
 │   ├── settings_dialog.py      # Einstellungsdialog
@@ -219,11 +226,18 @@ If a BIOS folder is configured, `-rompath "<bios_folder>"` is appended so MAME c
 python -m unittest discover -s tests -v
 ```
 
+### Publishing a release
+
+On GitHub open **Actions → Release → Run workflow** (branch `main`) and enter the new version as `X.Y.Z`, e.g. `1.1.0`. The workflow checks that it is greater than the current one, sets `__version__` in `main.py`, runs the tests, commits to `main`, creates the tag `v1.1.0` and publishes a release with a source ZIP. From then on the update notice in older launcher versions points to the new release.
+
 ### Project structure
 
 ```text
 vsmile-mame-launcher/
 ├── main.py                     # Entry point
+├── .github/
+│   ├── workflows/release.yml   # Release workflow (manual, takes a version number)
+│   └── scripts/set_version.py  # sets __version__ in main.py
 ├── vsmile_launcher/
 │   ├── app.py                  # Main window / GUI
 │   ├── settings_dialog.py      # Settings dialog
